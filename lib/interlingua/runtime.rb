@@ -181,7 +181,7 @@ module Interlingua
           context.locals[param] = args[index]
         end
 
-        @body.eval(context, @runtime, @keywords)
+        @body.eval(context, @keywords)
       end
     end
 

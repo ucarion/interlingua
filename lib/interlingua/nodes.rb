@@ -12,12 +12,12 @@ module Interlingua
       self
     end
 
-    def eval(context, runtime, keywords)
+    def eval(context, keywords)
       return_val = nil
       nodes.each do |node|
-        return_val = node.eval(context, runtime, keywords)
+        return_val = node.eval(context, keywords)
       end
-      return_val || runtime[keywords["nil"]]
+      return_val ||  context[keywords["nil"]]
     end
   end
 
@@ -32,14 +32,14 @@ module Interlingua
   end
 
   class NumberNode < LiteralNode
-    def eval(context, runtime, keywords)
-      runtime[keywords["number_name"]].new_with_value(@value)
+    def eval(context, keywords)
+      context[keywords["number_name"]].new_with_value(@value)
     end
   end
   
   class StringNode < LiteralNode
-    def eval(context, runtime, keywords)
-      runtime[keywords["string_name"]].new_with_value(@value)
+    def eval(context, keywords)
+      context[keywords["string_name"]].new_with_value(@value)
     end
   end
 
@@ -48,8 +48,8 @@ module Interlingua
       super(true)
     end
 
-    def eval(context, runtime, keywords)
-      runtime[keywords["true"]]
+    def eval(context, keywords)
+      context[keywords["true"]]
     end
   end
 
@@ -58,8 +58,8 @@ module Interlingua
       super(false)
     end
 
-    def eval(context, runtime, keywords)
-      runtime[keywords["false"]]
+    def eval(context, keywords)
+      context[keywords["false"]]
     end
   end
 
@@ -68,8 +68,8 @@ module Interlingua
       super(nil)
     end
 
-    def eval(context, runtime, keywords)
-      runtime[keywords["nil"]]
+    def eval(context, keywords)
+      context[keywords["nil"]]
     end
   end
 
@@ -87,17 +87,17 @@ module Interlingua
       @receiver, @method, @arguments = receiver, method, arguments
     end
 
-    def eval(context, runtime, keywords)
+    def eval(context, keywords)
       if receiver.nil? && context.locals[method] && arguments.empty?
         context.locals[method]
       else # method call, plain and simple
         if receiver
-          value = receiver.eval(context, runtime, keywords)
+          value = receiver.eval(context, keywords)
         else
           value = context.curr_self
         end
 
-        eval_args = arguments.map { |arg| arg.eval(context, runtime, keywords) }
+        eval_args = arguments.map { |arg| arg.eval(context, keywords) }
         value.call(method, eval_args)
       end
     end
@@ -111,7 +111,7 @@ module Interlingua
       @name = name
     end
 
-    def eval(context, runtime, keywords)
+    def eval(context, keywords)
       context[name]
     end
   end
@@ -124,8 +124,8 @@ module Interlingua
       @name, @value = name, value
     end
 
-    def eval(context, runtime, keywords)
-      context[name] = value.eval(context, runtime, keywords)
+    def eval(context, keywords)
+      context[name] = value.eval(context, keywords)
     end
   end
 
@@ -137,8 +137,8 @@ module Interlingua
       @name, @value = name, value
     end
 
-    def eval(context, runtime, keywords)
-      context.locals[name] = value.eval(context, runtime, keywords)
+    def eval(context, keywords)
+      context.locals[name] = value.eval(context, keywords)
     end
   end
 
@@ -150,8 +150,8 @@ module Interlingua
       @name, @params, @body = name, params, body
     end
 
-    def eval(context, runtime, keywords)
-      context.curr_class.methods[[name, params.size]] = Interlingua::Runtime::RuntimeMethod.new(params, body, runtime, keywords)
+    def eval(context, keywords)
+      context.curr_class.methods[[name, params.size]] = Interlingua::Runtime::RuntimeMethod.new(params, body, context, keywords)
     end
   end
 
@@ -163,17 +163,17 @@ module Interlingua
       @name, @body = name, body
     end
 
-    def eval(context, runtime, keywords)
+    def eval(context, keywords)
       # try to re-open the class by seeing if it exists already
       target_class = context[name]
 
       unless target_class # so it doesn't exist, let's create it
-        context[name] = target_class = Interlingua::Runtime::RuntimeClass.new(runtime, keywords)
+        context[name] = target_class = Interlingua::Runtime::RuntimeClass.new(context, keywords)
       end
 
       # the new method has access to the context of the modified class
       contx = Interlingua::Runtime::RuntimeContext.new(target_class, target_class)
-      body.eval(contx, contx, keywords)
+      body.eval(contx, keywords)
 
       target_class
     end
@@ -188,9 +188,9 @@ module Interlingua
       @condition, @body = condition, body
     end
 
-    def eval(context, runtime, keywords)
-      if condition.eval(context, runtime, keywords).value
-        body.eval(context, runtime, keywords)
+    def eval(context, keywords)
+      if condition.eval(context, keywords).value
+        body.eval(context, keywords)
       end
     end
   end
@@ -203,9 +203,9 @@ module Interlingua
       @condition, @body = condition, body
     end
 
-    def eval(context, runtime, keywords)
-      unless condition.eval(context, runtime, keywords).value
-        body.eval(context, runtime, keywords)
+    def eval(context, keywords)
+      unless condition.eval(context, keywords).value
+        body.eval(context, keywords)
       end
     end
   end
@@ -218,9 +218,9 @@ module Interlingua
       @condition, @body = condition, body
     end
 
-    def eval(context, runtime, keywords)
-      unless condition.eval(context, runtime, keywords).value
-        body.eval(context, runtime, keywords)
+    def eval(context, keywords)
+      unless condition.eval(context, keywords).value
+        body.eval(context, keywords)
       end
     end
   end
@@ -233,9 +233,9 @@ module Interlingua
       @condition, @body = condition, body
     end
 
-    def eval(context, runtime, keywords)
-      unless condition.eval(context, runtime, keywords).value
-        body.eval(context, runtime, keywords)
+    def eval(context, keywords)
+      unless condition.eval(context, keywords).value
+        body.eval(context, keywords)
       end
     end
   end

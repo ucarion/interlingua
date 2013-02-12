@@ -7,7 +7,7 @@ module Interlingua
 
     def interpret(code)
       runtime = Interlingua::Runtime.new(@keywords)
-      @parser.parse(code).eval(runtime.runtime, runtime.runtime, @keywords)
+      @parser.parse(code).eval(runtime.runtime, @keywords)
     end
   end
 end
