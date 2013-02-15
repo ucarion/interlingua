@@ -1,6 +1,6 @@
 # Interlingua #
 
-Interlingua is a programming language where the keywords are set by the user.
+Interlingua is a programming language where the keywords are set by the user. It's based on [ulyssescript](https://github.com/ulyssecarion/ulyssescript), another programming language I made.
 
 I made this with the idea that those who want to learn a computer programming language but do not speak English. Though it has become the status quo of computer science that all major programming languages must be in English, this doesn't mean that people who just want to try programming out have to learn English words.
 
